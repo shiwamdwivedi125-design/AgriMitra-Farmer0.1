@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase, type Profile } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase, type Profile } from '@/lib/supabase';
 
 type AuthContextType = {
   session: Session | null;
@@ -35,6 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
@@ -64,6 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp: AuthContextType['signUp'] = async (email, password, metadata) => {
+    if (!isSupabaseConfigured) {
+      return { error: 'Account creation is unavailable until Supabase is configured.' };
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -88,18 +97,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn: AuthContextType['signIn'] = async (email, password) => {
+    if (!isSupabaseConfigured) {
+      return { error: 'Sign-in is unavailable until Supabase is configured.' };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
     return { error: null };
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) return;
+
     await supabase.auth.signOut();
     setProfile(null);
   };
 
   const refreshProfile = async () => {
-    if (user) await loadProfile(user.id);
+    if (isSupabaseConfigured && user) await loadProfile(user.id);
   };
 
   return (

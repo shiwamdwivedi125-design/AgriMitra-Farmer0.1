@@ -17,6 +17,7 @@ import { CartPage } from '@/pages/CartPage';
 import { OrdersPage } from '@/pages/OrdersPage';
 import { VerifyPage } from '@/pages/VerifyPage';
 import { Link } from '@/lib/router';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 function Router() {
   const route = useRouter();
@@ -59,6 +60,11 @@ function Router() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      {!isSupabaseConfigured && (
+        <div role="status" className="bg-amber-50 border-b border-amber-200 px-4 py-3 text-center text-sm text-amber-950">
+          Sign-in and saved data need <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> configured in Render.
+        </div>
+      )}
       <main className="flex-1">{page}</main>
       <Footer />
     </div>

@@ -6,8 +6,9 @@ export type Route = {
 };
 
 function parseHash(): Route {
-  const hash = window.location.hash.slice(1) || '/';
-  const [path, queryString] = hash.split('?');
+  const route = window.location.hash.slice(1) || window.location.pathname || '/';
+  const [routePath, queryString] = route.split('?');
+  const path = routePath.length > 1 ? routePath.replace(/\/+$/, '') : '/';
   const params: Record<string, string> = {};
   if (queryString) {
     new URLSearchParams(queryString).forEach((v, k) => { params[k] = v; });
