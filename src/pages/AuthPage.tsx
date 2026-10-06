@@ -39,7 +39,12 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         current_crop: currentCrop || null,
       });
       if (err) {
-        setError(err);
+        const lowerError = err.toLowerCase();
+        setError(
+          lowerError.includes('weak') || lowerError.includes('easy to guess')
+            ? 'This password is weak or commonly exposed. Choose a new, unique passphrase that you have not used on another site.'
+            : err
+        );
         setLoading(false);
       } else {
         navigate('/dashboard');
@@ -111,6 +116,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
             <InputField icon={Mail} label="Email" value={email} onChange={setEmail} type="email" required placeholder="farmer@example.com" />
             <InputField icon={Lock} label="Password" value={password} onChange={setPassword} type="password" required placeholder="••••••••" minLength={6} />
+            {isSignup && (
+              <p className="-mt-3 text-xs text-gray-500">
+                Use a new, unique passphrase you have not used on another website.
+              </p>
+            )}
 
             <button
               type="submit"
